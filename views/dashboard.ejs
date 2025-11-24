@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Dashboard</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>👤 Welcome, <%= username %>!</h1>
+    <div class="header-right">
+      <a href="/" class="btn btn-secondary">View Recipes</a>
+      <a href="/add" class="btn btn-primary">+ Add New Recipe</a>
+      <a href="/logout" class="btn btn-danger">Logout</a>
+    </div>
+  </header>
+
+  <main>
+    <div class="dashboard-card">
+      <h2>Your Dashboard</h2>
+      <p>Manage your personal cooking journey here.</p>
+
+      <hr style="margin: 25px 0;">
+
+      <!-- USER'S PERSONAL RECIPES SECTION -->
+      <h2>👨‍🍳 Your Personal Recipes</h2>
+
+      <% if (myRecipes.length === 0) { %>
+        <div class="empty-state" style="margin-top: 20px;">
+          <div class="empty-icon">📝</div>
+          <h3>You haven’t added any recipes yet.</h3>
+          <p>Start your cooking collection!</p>
+          <a href="/add" class="btn btn-primary">Add Your First Recipe</a>
+        </div>
+      <% } else { %>
+        <div class="recipe-grid" style="margin-top:20px;">
+          <% myRecipes.forEach(recipe => { %>
+            <div class="recipe-card user-recipe">
+              <div class="recipe-badge user-badge">My Recipe</div>
+
+              <div class="recipe-header">
+                <h3><%= recipe.name %></h3>
+                <span class="category"><%= recipe.category || "Uncategorized" %></span>
+              </div>
+
+              <div class="recipe-meta">
+                <div class="meta-item">
+                  ⏱️ <span><%= recipe.prep_time || 0 %> + <%= recipe.cook_time || 0 %> min</span>
+                </div>
+                <div class="meta-item">
+                  🍽️ <span><%= recipe.servings || "N/A" %> servings</span>
+                </div>
+              </div>
+
+              <div class="recipe-actions">
+                <a href="/recipe/<%= recipe.id %>" class="btn btn-secondary">View</a>
+                <form action="/delete/<%= recipe.id %>" method="POST" style="display:inline;">
+                  <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>
