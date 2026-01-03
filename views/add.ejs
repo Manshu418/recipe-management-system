@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Recipe</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    /* small inline helpers for form rows */
+    .row { display:flex; gap:8px; margin-bottom:8px; align-items:center; }
+    .row input, .row select { padding:8px; border-radius:6px; border:1px solid #ddd; }
+    .small-input { width:100px; }
+    .ingredient-name { flex:1; }
+    .btn-xs { padding:6px 10px; font-size:0.9rem; border-radius:6px; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>➕ Add New Recipe</h1>
+      <div class="header-right">
+        <a href="/dashboard" class="btn btn-secondary">Dashboard</a>
+        <a href="/" class="btn btn-secondary">All Recipes</a>
+      </div>
+    </header>
+
+    <main>
+      <form action="/add" method="POST" class="recipe-form">
+        <div class="form-group">
+          <label>Recipe Name</label>
+          <input type="text" name="name" required placeholder="E.g., Chocolate Chip Cookies">
+        </div>
+
+        <div class="form-group">
+          <label>Category (choose or type)</label>
+          <div style="display:flex; gap:8px;">
+            <select name="category_id">
+              <option value="">-- Select category --</option>
+              <% categories.forEach(cat => { %>
+                <option value="<%= cat.id %>"><%= cat.name %></option>
+              <% }) %>
+            </select>
+            <input type="text" name="category_text" placeholder="Or type a category (e.g., Snack)">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div style="flex:1;">
+            <label>Prep Time (min)</label>
+            <input type="number" name="prep_time" min="0" placeholder="10">
+          </div>
+          <div style="flex:1;">
+            <label>Cook Time (min)</label>
+            <input type="number" name="cook_time" min="0" placeholder="15">
+          </div>
+          <div style="flex:1;">
+            <label>Servings</label>
+            <input type="number" name="servings" min="1" placeholder="4">
+          </div>
+        </div>
+
+        <hr>
+
+        <h3>Ingredients</h3>
+        <div id="ingredients-list">
+          <div class="row">
+            <input class="ingredient-name" type="text" name="ingredient_name[]" placeholder="Ingredient name (e.g., Flour)" required>
+            <input class="small-input" type="text" name="quantity[]" placeholder="Qty (e.g., 2)" >
+            <select name="unit_id[]">
+              <option value="">unit</option>
+              <% units.forEach(u => { %>
+                <option value="<%= u.id %>"><%= u.unit_name %></option>
+              <% }) %>
+            </select>
+            <button type="button" class="btn-xs btn btn-danger" onclick="removeRow(this)">−</button>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="addIngredient()">+ Add Ingredient</button>
+
+        <hr>
+
+        <h3>Instructions</h3>
+        <div id="instructions-list">
+          <div class="row">
+            <input type="text" name="step_text[]" placeholder="Step 1: preheat oven..." style="flex:1;" required>
+            <button type="button" class="btn-xs btn btn-danger" onclick="removeRow(this)">−</button>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="addStep()">+ Add Step</button>
+
+        <div style="margin-top:20px;" class="form-actions">
+          <button type="submit" class="btn btn-primary">Save Recipe</button>
+          <a href="/dashboard" class="btn btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </main>
+  </div>
+
+<script>
+function addIngredient() {
+  const container = document.getElementById('ingredients-list');
+  const row = document.createElement('div');
+  row.className = 'row';
+  row.innerHTML = `
+    <input class="ingredient-name" type="text" name="ingredient_name[]" placeholder="Ingredient name (e.g., Sugar)" required>
+    <input class="small-input" type="text" name="quantity[]" placeholder="Qty (e.g., 1)">
+    <select name="unit_id[]">
+      <option value="">unit</option>
+      <% units.forEach(u => { %>
+        document.write('<option value="<%= u.id %>"><%= u.unit_name %></option>');
+      <% }) %>
+    </select>
+    <button type="button" class="btn-xs btn btn-danger" onclick="removeRow(this)">−</button>
+  `;
+  // The above document.write won't execute here in runtime; instead build options manually
+  // We'll rebuild properly below:
+  // Remove and recreate options properly:
+  // Better approach: clone existing first row's select
+  const firstSelect = container.querySelector('select[name="unit_id[]"]');
+  if (firstSelect) {
+    const clonedSelect = firstSelect.cloneNode(true);
+    row.querySelector('select').replaceWith(clonedSelect);
+  }
+  container.appendChild(row);
+}
+
+function addStep() {
+  const container = document.getElementById('instructions-list');
+  const row = document.createElement('div');
+  row.className = 'row';
+  row.innerHTML = `<input type="text" name="step_text[]" placeholder="Describe this step" style="flex:1;" required>
+                   <button type="button" class="btn-xs btn btn-danger" onclick="removeRow(this)">−</button>`;
+  container.appendChild(row);
+}
+
+function removeRow(btn) {
+  const row = btn.closest('.row');
+  if (row) row.remove();
+}
+</script>
+</body>
+</html>
